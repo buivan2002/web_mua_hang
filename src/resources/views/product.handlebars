@@ -1,0 +1,20 @@
+<div class="mt4">
+    <div class="row justify-content-center">
+        {{#each listproduct}}
+            <div class="col-sm-6 col-lg-4">
+                <div class="card" style="width: 18rem; margin:10px 5px;">
+                    <img src="{{this.ImageLink}}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.ProductName}}</h5>
+                        <p class="card-text">{{this.Description}}</p>
+                        <form action="/add_to_cart" method="POST" >
+                            <input type="hidden" name="Product_ID" value="{{this.Product_ID}}">
+                        {{!-- dùng form và name để có thể req.body được nhanh và ngắn gọn hơn chức năng xóa dùng thẻ a nhiều  --}}
+                            <button type="submit" class="btn btn-primary">{{this.Price}}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>

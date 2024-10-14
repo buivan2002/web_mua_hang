@@ -1,0 +1,205 @@
+<h2 class="text-center">Hướng dẫn thiết giao diện trang giỏ hàng bằng Bootstrap</h2>
+<div class="google-auto-placed ap_container" style="width: 100%; height: auto; clear: both; text-align: center;">
+    <ins data-ad-format="auto" class="adsbygoogle adsbygoogle-noablate" data-ad-client="ca-pub-4302855514445303" data-adsbygoogle-status="done" style="display: block; margin: auto; background-color: transparent; height: 280px;">
+        <div id="aswift_2_host" style="border: none; height: 280px; width: 1083px; margin: 0px; padding: 0px; position: relative; visibility: visible; background-color: transparent; display: inline-block;"></div>
+    </ins>
+</div>
+
+<div class="container">
+    <table id="cart" class="table table-hover table-condensed">
+        <thead>
+            <tr>
+                <th style="width:50%">Tên sản phẩm</th>
+                <th style="width:10%">Giá</th>
+                <th style="width:8%">Số lượng</th>
+                <th style="width:22%" class="text-center">Thành tiền</th>
+                <th style="width:10%"> </th>
+            </tr>
+        </thead>
+
+        {{#each listUserOrders}}
+        <tbody>
+            <tr>
+                <td data-th="Product">
+                    <div class="row">
+                        <div class="col-sm-2 hidden-xs"><img src="{{this.ImageLink}}" alt="Sản phẩm 1" class="img-responsive" width="100">
+                        </div>
+                        <div class="col-sm-10">
+                            <h4 class="nomargin">{{this.ProductName}}</h4>
+                            <p>{{this.Description}}</p>
+                        </div>
+                    </div>
+                </td>
+                <td data-th="Price">{{this.Price}}</td>
+                {{!-- tăng số lượng --}}
+                {{!-- Cần có form input có name có submid form thì mới truyền lên api đc --}}
+                <form action="/add_to_cart/update-quantity" method="POST" id="Form">
+                    <input type="hidden" name="Product_ID" value="{{this.Product_ID}}">
+                    <td data-th="Quantity">
+                        <input class="form-control text-center" name="Quantity" value="{{this.Quantity}}" type="number" onchange="updateTotal(this); document.getElementById('Form').submit()">
+                    </td>
+                </form>
+
+                <td data-th="Subtotal" class="text-center"></td>  
+                <td >
+                    <a href="" class="btn btn-link" data-toggle="modal" data-id="{{this.Product_ID}}" data-target="#exampleModal">Xóa đơn hàng</a>
+
+                   
+                </td>
+            </tr>
+        {{/each}}
+        </tbody>
+        <tfoot>
+            <tr class="visible-xs">
+                <td class="text-center"><strong id="total-price">Tổng 0 $</strong>
+                </td>
+            </tr>
+            <tr>
+                <td><a href="/product" class="btn btn-warning"><i class="fa fa-angle-left"></i> Tiếp tục mua hàng</a>
+                </td>
+                <td colspan="2" class="hidden-xs"> </td>
+                <td class="hidden-xs text-center"><strong id="total-price-desktop">Tổng tiền 0 $</strong>
+                </td>
+                <td><a href="#" class="btn btn-success btn-block">Thanh toán <i class="fa fa-angle-right"></i></a>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+
+<div id="exampleModal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Xóa đơn hàng</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có muốn xóa đơn hàng</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" id="delete-btn" class="btn btn-primary">Xóa bỏ</button>
+      </div>
+    </div>
+  </div>
+</div>
+<form name="delete-form" method="POST"></form>
+
+
+<script>
+    let totalPrice = 0;
+
+function updateTotal(input) {
+    // Lấy hàng chứa ô nhập liệu
+    const row = input.closest('tr');
+
+    // Lấy giá sản phẩm từ ô giá
+    const priceText = row.querySelector('[data-th="Price"]').innerText.replace('.', '');
+    const price = parseFloat(priceText);
+
+    // Lấy số lượng từ ô nhập liệu
+    const quantity = parseInt(input.value);
+
+    // Tính tổng
+    const total = price * quantity;
+
+    // Cập nhật ô tổng
+    row.querySelector('[data-th="Subtotal"]').innerText = total.toLocaleString() + ' $';
+
+    // Cập nhật tổng giá tiền
+    totalPrice += total - parseFloat(row.querySelector('[data-th="Subtotal"]').getAttribute('data-prev-total') || 0);
+    row.querySelector('[data-th="Subtotal"]').setAttribute('data-prev-total', total);
+    document.getElementById('total-price').innerText = 'Tổng ' + totalPrice.toLocaleString() + ' $';
+    document.getElementById('total-price-desktop').innerText = 'Tổng tiền ' + totalPrice.toLocaleString() + ' $';
+
+   
+}
+
+
+    // Gọi updateTotal cho mỗi mặt hàng trong giỏ hàng khi trang được tải
+   document.addEventListener("DOMContentLoaded", function() {
+    const quantityInputs = document.querySelectorAll('input[type="number"]');
+    quantityInputs.forEach(input => {
+        updateTotal(input);
+       
+    });
+});
+    //lấy ID từ chỗ nút xóa sản phẩm
+    document.addEventListener('DOMContentLoaded',function(){
+        var Product_ID ;
+        var deleteform = document.forms['delete-form']
+        $('#exampleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+        Product_ID = button.data('id') 
+        console.log('Product:', Product_ID);
+        })
+
+        var btnDelete = document.getElementById('delete-btn')
+        btnDelete.onclick = function() {
+            deleteform.action = '/add_to_cart/' + Product_ID + '?_method=DELETE' // truyền nó lên url để tí param lấy còn muốn không param lấy thì dùng input ẩn 
+            deleteform.submit()
+        }
+    })
+
+</script>
+
+<style>
+    .table > tbody > tr > td,
+    .table > tfoot > tr > td {
+        vertical-align: middle;
+    }
+
+    @media screen and (max-width: 600px) {
+        table#cart tbody td .form-control {
+            width: 20%;
+            display: inline !important;
+        }
+
+        .actions .btn {
+            width: 36%;
+            margin: 1.5em 0;
+        }
+
+        .actions .btn-info {
+            float: left;
+        }
+
+        .actions .btn-danger {
+            float: right;
+        }
+
+        table#cart thead {
+            display: none;
+        }
+
+        table#cart tbody td {
+            display: block;
+            padding: 0.6rem;
+            min-width: 320px;
+        }
+
+        table#cart tbody tr td:first-child {
+            background: #333;
+            color: #fff;
+        }
+
+        table#cart tbody td:before {
+            content: attr(data-th);
+            font-weight: bold;
+            display: inline-block;
+            width: 8rem;
+        }
+
+        table#cart tfoot td {
+            display: block;
+        }
+
+        table#cart tfoot td .btn {
+            display: block;
+        }
+    }
+</style>

@@ -1,0 +1,23 @@
+<div class="mt4">
+  <div class="row justify-content-center">
+{{#if searchproducts.length}}
+
+        {{#each searchproducts}}
+        <div class="col-sm-6 col-lg-4">
+          <div class="card" style="width: 18rem; margin:10px 5px;">
+            <img src="{{this.ImageLink}}" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{{this.ProductName}}</h5>
+              <p class="card-text">{{this.Description}}</p>
+              <a href="#" class="btn btn-primary">{{this.Price}}</a>
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    {{else}}
+      <div class="col-sm-12 text-center">
+        <p>Không có sản phẩm</p>
+      </div>
+    {{/if}}
+  </div>
+</div>
